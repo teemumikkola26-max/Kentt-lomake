@@ -1,1 +1,498 @@
-<!DOCTYPE html> <html lang="fi"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"> <title>Kenttälomake</title> <style> :root{--ink:#1c1f1a;--paper:#f2f0e8;--card:#fff;--line:#d8d4c6;--safety:#e8590c;--safety-dark:#c44a08;--ok:#2f6b3a;--mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace} *{box-sizing:border-box}html,body{margin:0;padding:0}body{background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding-bottom:96px;-webkit-tap-highlight-color:transparent} .topbar{background:var(--ink);color:var(--paper);padding:14px 16px 12px;position:sticky;top:0;z-index:20;border-bottom:3px solid var(--safety)} .topbar .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c9c6b8}.topbar h1{margin:2px 0 0;font-size:19px;font-weight:700;letter-spacing:-.01em} .wrap{padding:14px 14px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px} .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;font-family:var(--mono);color:#66604f;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between} label{display:block;font-size:12.5px;font-weight:600;margin:10px 0 4px;color:#3a3a34}label.req::after{content:" *";color:var(--safety)} input[type=text],input[type=number],select,textarea{width:100%;font-size:16px;padding:10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-family:inherit} input:focus,select:focus,textarea:focus{outline:none;border-color:var(--safety)}textarea{min-height:70px;resize:vertical} .hint{font-size:11.5px;color:#8a8574;margin-top:3px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:8px;padding:11px 16px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit} .btn-primary{background:var(--safety);color:#fff}.btn-primary:active{background:var(--safety-dark)}.btn-outline{background:#fff;color:var(--ink);border:1.5px solid var(--line)} .btn-ghost{background:transparent;color:#8a3a15;padding:8px 10px;font-size:13px}.btn-block{width:100%}.btn-sm{padding:7px 10px;font-size:12.5px;border-radius:6px}.btn-danger{background:#fff;color:#a3271b;border:1.5px solid #e3b3ab} .method-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.method-tile{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:12px 10px;text-align:left;cursor:pointer;font-size:13.5px;font-weight:700;line-height:1.25;color:var(--ink)} .method-tile .num{font-family:var(--mono);font-size:10.5px;color:var(--safety);display:block;margin-bottom:3px}.method-tile:active{border-color:var(--safety)} .entry-card{border:1.5px solid var(--line);border-left:5px solid var(--safety);border-radius:8px;padding:10px 12px;margin-bottom:9px;background:#fffdf9} .entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.entry-title{font-weight:700;font-size:14.5px}.entry-sub{font-size:12px;color:#8a8574;margin-top:2px;font-family:var(--mono)} .entry-actions{display:flex;gap:6px;margin-top:8px}.thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.thumb{position:relative;width:56px;height:56px;border-radius:6px;overflow:hidden;border:1px solid var(--line)}.thumb img{width:100%;height:100%;object-fit:cover} .thumb .rm{position:absolute;top:1px;right:1px;background:rgba(0,0,0,.65);color:#fff;border:none;width:18px;height:18px;border-radius:50%;font-size:11px;line-height:1}.photo-add{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:6px;border:1.5px dashed var(--line);color:#8a8574;font-size:22px;background:#fbfaf6} .empty{text-align:center;padding:24px 10px;color:#8a8574;font-size:13.5px}.footerbar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1.5px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:30} .step-back{font-family:var(--mono);font-size:12px;color:#8a8574;display:flex;align-items:center;gap:4px;margin-bottom:10px;cursor:pointer}.badge{display:inline-block;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:10.5px;padding:2px 6px;border-radius:4px;margin-left:6px} select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.6' fill='none'/></svg>");background-repeat:no-repeat;background-position:right 10px center} .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:50;opacity:0;transition:opacity .25s;pointer-events:none}.toast.show{opacity:1} @media(min-width:700px){.wrap{max-width:850px;margin:auto}.method-grid{grid-template-columns:repeat(3,1fr)}} </style> <script src="https://unpkg.com/docx@8.0.4/build/index.js"></script> </head> <body> <div class="topbar"><div class="eyebrow">Rakennustutkimus · kenttälomake</div><h1 id="topTitle">Kohteen tiedot</h1></div> <div class="wrap" id="app"></div><div class="footerbar" id="footer"></div><div class="toast" id="toast"></div> <script> const METHODS=[ {id:"aisti",name:"Aistinvarainen tarkastelu",short:"Aistinv. tarkastelu",fields:[ {id:"havainnot",label:"Silmämääräiset havainnot",type:"textarea",req:true,placeholder:"Pintamateriaalin kunto, näkyvät vauriot, jäljet..."}, {id:"haju",label:"Hajuhavainto",type:"select",options:["Ei havaittu","Lievä","Selvä, poikkeava"]}, {id:"hajukuvaus",label:"Hajun kuvaus",type:"text",placeholder:"esim. maakellarimainen, mikrobiperäinen"}]}, {id:"pintakosteus",name:"Pintakosteuden mittaus",short:"Pintakosteus",fields:[ {id:"laite",label:"Mittalaite",type:"text",req:true,placeholder:"esim. Gann Hydromette, Tramex"}, {id:"arvo",label:"Mittausarvo",type:"number",req:true}, {id:"yksikko",label:"Yksikkö / asteikko",type:"select",options:["Vertailuluku (0–100)","Painoprosenttiarvio","Muu"]}, {id:"tulkinta",label:"Tulkinta",type:"select",options:["Kuiva","Viitteitä kohonneesta kosteudesta","Kostea"]}]}, {id:"rh",name:"Rakenteen suht. kosteus (RH)",short:"RH-mittaus",fields:[ {id:"syvyys",label:"Mittaussyvyys (mm)",type:"number",req:true},{id:"rh",label:"Suhteellinen kosteus RH (%)",type:"number",req:true}, {id:"lampo",label:"Lämpötila (°C)",type:"number"},{id:"tasaantuminen",label:"Tasaantumisaika (h)",type:"number"}, {id:"laite",label:"Mittalaite",type:"text",placeholder:"esim. Vaisala HMP"}]}, {id:"merkkiaine",name:"Merkkiainekoe",short:"Merkkiainekoe",fields:[ {id:"aine",label:"Merkkiaine",type:"text",req:true,placeholder:"esim. vetykaasu"},{id:"injektio",label:"Injektointikohta",type:"text",req:true}, {id:"tulos",label:"Tulos",type:"select",options:["Ei havaintoa","Merkkiainetta havaittu"]},{id:"leviaminen",label:"Havaittu leviämisreitti",type:"textarea",placeholder:"Mistä ilmavuoto/reitti kulkee"}]}, {id:"nayte",name:"Näyte",short:"Näytteenotto",fields:[ {id:"tyyppi",label:"Näytteen tyyppi",type:"select",req:true,options:["Mikrobimateriaalinäyte", "Mikrobi ilmanäyte","Mikrobi pintasivelynäyte", "VOC materiaalinäyte", "VOC ilmanäyte", "VOC Flec-näyte", "Kuitulaskeumanäyte", "Pölynkoostumusnäyte", "Asbestimateriaalinäyte"]}, {id:"nro",label:"Näytteen tunnus / numero",type:"text",req:true}]}, {id:"lampokuvaus",name:"Lämpökuvaus",short:"Lämpökuvaus",fields:[ {id:"kamera",label:"Kamera / malli",type:"text"},{id:"ulko",label:"Ulkolämpötila (°C)",type:"number"},{id:"sisa",label:"Sisälämpötila (°C)",type:"number"}, {id:"sisarh",label:"Sisäilman RH (%)",type:"number"},{id:"havainnot",label:"Havainnot",type:"textarea",placeholder:"Kylmäsillat, vuotokohdat..."}]}, {id:"avaus",name:"Rakenneavaus",short:"Rakenneavaus",fields:[ {id:"kuvaus",label:"Rakennekerrokset",type:"textarea",placeholder:"esim. Kipsilevy 13 mm, hs-muovi, mineraalivilla 100 mm..."},{id:"kerrokset",label:"Kosteusmittaukset",type:"textarea",placeholder:"Eristekerroksen RH, ao-puun kosteus, sokkelin pko..."}, {id:"vaurio",label:"Otetut näytteet",type:"textarea",placeholder:"esim. MIK1 eristevilla, MIK2 ao-puu"}]}, {id:"iv",name:"IV / painesuhdemittaus",short:"IV / paine-ero",fields:[ {id:"laite",label:"Mittalaite",type:"text"},{id:"paine",label:"Painesuhde (Pa)",type:"number"},{id:"ilmavirta",label:"Ilmavirta (l/s)",type:"number"},{id:"havainnot",label:"Havainnot",type:"textarea"}]}, {id:"muu",name:"Muu menetelmä",short:"Muu menetelmä",fields:[ {id:"nimi",label:"Menetelmän nimi",type:"text",req:true},{id:"kuvaus",label:"Kuvaus ja havainnot",type:"textarea",req:true}]} ]; const COMMON_FIELDS=[{id:"paikka",label:"Tutkimuskohta / rakenneosa / tila",type:"text",req:true,placeholder:"esim. Kylpyhuone 1. krs, ulkoseinä"}]; let project={nimi:"",osoite:"",tilaaja:"",tutkija:"",pvm:""};let entries=[];let view="project";let editingEntry=null;let editingIsNew=false; const todayISO=new Date().toISOString().slice(0,10);project.pvm=todayISO; const DB_NAME='kenttalomakeDB',DB_STORE='state'; function idbOpen(){return new Promise((resolve,reject)=>{if(!window.indexedDB){reject(new Error('no-idb'));return}const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>{req.result.createObjectStore(DB_STORE)};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})} function idbSet(key,value){return idbOpen().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).put(value,key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)}))} function idbGet(key){return idbOpen().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readonly');const r=tx.objectStore(DB_STORE).get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)}))} function idbDel(key){return idbOpen().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction(DB_STORE,'readwrite');tx.objectStore(DB_STORE).delete(key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})).catch(()=>{})} let saveTimer=null,lastSaveFailed=false; function scheduleAutosave(){clearTimeout(saveTimer);saveTimer=setTimeout(autosave,350)} async function autosave(){ clearTimeout(saveTimer); const state={project,entries,view,editingEntry,editingIsNew}; try{ if(window.storage){await window.storage.set('kenttalomake_state',JSON.stringify(state))} else{await idbSet('kenttalomake_state',state)} lastSaveFailed=false;return }catch(e){} try{localStorage.setItem('kenttalomake_state',JSON.stringify(state));lastSaveFailed=false} catch(e){if(!lastSaveFailed){lastSaveFailed=true;toast('Tallennus epäonnistui – vapauta puhelimen tilaa')}} } async function loadState(){ let value=null; try{ if(window.storage){const r=await window.storage.get('kenttalomake_state');value=r&&r.value?JSON.parse(r.value):null} else{value=await idbGet('kenttalomake_state')||null} }catch(e){} if(!value){try{const raw=localStorage.getItem('kenttalomake_state');if(raw)value=JSON.parse(raw)}catch(e){}} if(value){ if(value.project)project=Object.assign(project,value.project); if(value.entries)entries=value.entries; if(value.view)view=value.view; if('editingEntry'in value)editingEntry=value.editingEntry; if('editingIsNew'in value)editingIsNew=value.editingIsNew; if(view==='entryForm'&&(!editingEntry||!METHODS.find(m=>m.id===editingEntry.methodId))){view='project';editingEntry=null;editingIsNew=false} } render() } document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')autosave()}); window.addEventListener('pagehide',()=>{autosave()}); function confirmClearForm(){if(!project.nimi&&!project.tilaaja&&!project.tutkija&&entries.length===0){toast("Lomake on jo tyhjä");return}if(confirm("Tyhjennetäänkö koko lomake?\n\nKaikki kohteen tiedot, menetelmät ja valokuvat poistetaan pysyvästi."))clearForm()} async function clearForm(){project={nimi:"",osoite:"",tilaaja:"",tutkija:"",pvm:todayISO};entries=[];editingEntry=null;editingIsNew=false;try{if(window.storage)await window.storage.delete('kenttalomake_state')}catch(e){}try{await idbDel('kenttalomake_state')}catch(e){}try{localStorage.removeItem('kenttalomake_state')}catch(e){}view="project";render();toast("Lomake tyhjennetty")} function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)} function el(html){const d=document.createElement('div');d.innerHTML=html.trim();return d.firstElementChild} function render(){ const app=document.getElementById('app'),footer=document.getElementById('footer'),title=document.getElementById('topTitle');app.innerHTML="";footer.innerHTML=""; if(view==="project"){title.textContent="Kohteen tiedot";app.appendChild(renderProjectCard());app.appendChild(renderEntriesCard());footer.innerHTML='<button class="btn btn-primary btn-block" id="btnAddMethod">+ Lisää menetelmä</button><button class="btn btn-ghost btn-block" id="btnClearForm" style="margin-top:6px;">Tyhjennä lomake</button>';document.getElementById('btnAddMethod').onclick=()=>{view="methodSelect";render()};document.getElementById('btnClearForm').onclick=confirmClearForm} if(view==="methodSelect"){title.textContent="Valitse menetelmä";app.appendChild(renderBack(()=>{view="project";render()}));app.appendChild(renderMethodGrid())} if(view==="entryForm"){const m=METHODS.find(x=>x.id===editingEntry.methodId);title.textContent=m.name;app.appendChild(renderBack(()=>{view=editingIsNew?"methodSelect":"project";if(editingIsNew){editingEntry=null;editingIsNew=false}autosave();render()},editingIsNew?"Vaihda menetelmä":"Takaisin"));app.appendChild(renderEntryForm());footer.innerHTML=(editingIsNew?"":'<button class="btn btn-danger btn-block" id="btnDeleteEntry" style="margin-bottom:8px;">Poista tämä menetelmä</button>')+'<button class="btn btn-primary btn-block" id="btnSaveEntry">Tallenna menetelmä</button>';document.getElementById('btnSaveEntry').onclick=saveEntryForm;if(!editingIsNew)document.getElementById('btnDeleteEntry').onclick=()=>{entries=entries.filter(e=>e.id!==editingEntry.id);autosave();view="project";render()}} } function renderBack(fn,label){const d=el(`<div class="step-back">‹ ${label||"Takaisin"}</div>`);d.onclick=fn;return d} function renderProjectCard(){const c=el(`<div class="card"><h2>Kohde</h2><label class="req">Kohteen nimi / osoite</label><input type="text" id="p_nimi" autocomplete="off" placeholder="esim. Asunto Oy Kotikuja 3"><label>Tilaaja</label><input type="text" id="p_tilaaja" autocomplete="off" placeholder="Tilaajan nimi"><label class="req">Tutkijan nimi</label><input type="text" id="p_tutkija" autocomplete="off" placeholder="Tutkimuksen tekijä"><label>Päivämäärä</label><input type="text" id="p_pvm" autocomplete="off" placeholder="VVVV-KK-PP"></div>`);[['p_nimi','nimi'],['p_tilaaja','tilaaja'],['p_tutkija','tutkija'],['p_pvm','pvm']].forEach(([id,k])=>{c.querySelector('#'+id).value=project[k];c.querySelector('#'+id).oninput=e=>{project[k]=e.target.value;scheduleAutosave()}});return c} function renderEntriesCard(){const c=el(`<div class="card"><h2>Tehdyt menetelmät <span class="badge">${entries.length}</span></h2></div>`);if(!entries.length)c.appendChild(el(`<div class="empty">Ei vielä lisättyjä menetelmiä.<br>Aloita painamalla "+ Lisää menetelmä" alta.</div>`));else{entries.forEach((entry,idx)=>{const m=METHODS.find(x=>x.id===entry.methodId),card=el(`<div class="entry-card"><div class="entry-top"><div><div class="entry-title">${idx+1}. ${escapeHtml(m.name)}</div><div class="entry-sub">${escapeHtml(entry.values.paikka||"Ei paikkaa merkitty")}</div></div></div><div class="entry-actions"><button class="btn btn-outline btn-sm">Muokkaa</button></div></div>`);if(entry.photos?.length){const thumbs=el('<div class="thumbs"></div>');entry.photos.forEach(src=>thumbs.appendChild(el(`<div class="thumb"><img src="${src}"></div>`)));card.appendChild(thumbs)}card.querySelector('button').onclick=()=>{editingEntry=entry;editingIsNew=false;view="entryForm";render()};c.appendChild(card)})} if(entries.length){const r=el('<div style="margin-top:12px;"><button class="btn btn-outline btn-block" id="btnExport">Muodosta kenttämuistiinpano (Word)</button></div>');c.appendChild(r);setTimeout(()=>{const b=document.getElementById('btnExport');if(b)b.onclick=exportWord},0)}return c} function renderMethodGrid(){const w=el('<div class="method-grid"></div>');METHODS.forEach((m,i)=>{const t=el(`<button class="method-tile"><span class="num">${String(i+1).padStart(2,'0')}</span>${escapeHtml(m.short)}</button>`);t.onclick=()=>{editingEntry={id:'e'+Date.now(),methodId:m.id,values:{},photos:[]};editingIsNew=true;view="entryForm";autosave();render()};w.appendChild(t)});return w} function renderEntryForm(){const m=METHODS.find(x=>x.id===editingEntry.methodId),container=el('<div></div>'),common=el('<div class="card"></div>');COMMON_FIELDS.forEach(f=>common.appendChild(renderField(f,editingEntry.values)));container.appendChild(common);const spec=el(`<div class="card"><h2>${escapeHtml(m.name)}</h2></div>`);m.fields.forEach(f=>spec.appendChild(renderField(f,editingEntry.values)));container.appendChild(spec);const note=el('<div class="card"><h2>Lisähuomiot</h2></div>');note.appendChild(renderField({id:"huomiot",label:"Vapaa huomio (valinnainen)",type:"textarea"},editingEntry.values));container.appendChild(note);const pc=el(`<div class="card"><h2>Valokuvat <span class="badge">${editingEntry.photos.length}</span></h2></div>`),thumbs=el('<div class="thumbs"></div>');editingEntry.photos.forEach((src,i)=>{const t=el(`<div class="thumb"><img src="${src}"><button class="rm">×</button></div>`);t.querySelector('.rm').onclick=()=>{editingEntry.photos.splice(i,1);autosave();render()};thumbs.appendChild(t)});const add=el('<label class="photo-add">+<input type="file" accept="image/*" capture="environment" multiple style="display:none;"></label>');add.querySelector('input').onchange=e=>{const fs=[...e.target.files||[]];let p=fs.length;if(!p)return;fs.forEach(f=>{const r=new FileReader();r.onload=x=>{editingEntry.photos.push(x.target.result);if(!--p){autosave();render()}};r.readAsDataURL(f)})};thumbs.appendChild(add);pc.appendChild(thumbs);pc.appendChild(el('<div class="hint">Kuvat liitetään suoraan kenttämuistiinpanoon.</div>'));container.appendChild(pc);return container} function renderField(f,values){const val=values[f.id]||"";let ih;if(f.type==="textarea")ih=`<textarea id="fld_${f.id}" autocomplete="off" placeholder="${escapeHtml(f.placeholder||"")}">${escapeHtml(val)}</textarea>`;else if(f.type==="select")ih=`<select id="fld_${f.id}"><option value="">Valitse...</option>${f.options.map(o=>`<option value="${escapeHtml(o)}" ${o===val?"selected":""}>${escapeHtml(o)}</option>`).join("")}</select>`;else ih=`<input type="${f.type}" id="fld_${f.id}" autocomplete="off" placeholder="${escapeHtml(f.placeholder||"")}" value="${escapeHtml(val)}">`;const w=el(`<div><label class="${f.req?"req":""}">${escapeHtml(f.label)}</label>${ih}</div>`),input=w.querySelector(`#fld_${f.id}`);input.oninput=e=>{values[f.id]=e.target.value;scheduleAutosave()};input.onchange=e=>{values[f.id]=e.target.value;scheduleAutosave()};return w} function saveEntryForm(){const m=METHODS.find(x=>x.id===editingEntry.methodId),req=[...COMMON_FIELDS,...m.fields].filter(f=>f.req),missing=req.filter(f=>!editingEntry.values[f.id]);if(missing.length){toast("Täytä pakolliset kentät: "+missing.map(f=>f.label).join(", "));return}if(editingIsNew)entries.push(editingEntry);autosave();toast("Menetelmä tallennettu");view="project";render()} function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')} function dataUrlToBytes(dataUrl){const b64=dataUrl.split(',')[1]||'',bin=atob(b64),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return bytes} function normalizeImageOrientation(dataUrl){return new Promise(resolve=>{const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');canvas.width=img.naturalWidth||1;canvas.height=img.naturalHeight||1;canvas.getContext('2d').drawImage(img,0,0);resolve({dataUrl:canvas.toDataURL('image/jpeg',.92),width:canvas.width,height:canvas.height})};img.onerror=()=>resolve({dataUrl,width:1,height:1});img.src=dataUrl})} async function buildImageRun(dataUrl){const {ImageRun}=docx,n=await normalizeImageOrientation(dataUrl),h=Math.round(7.5*96/2.54),w=Math.max(1,Math.round(h*(n.width/n.height||1)));return new ImageRun({type:'jpg',data:dataUrlToBytes(n.dataUrl),transformation:{width:w,height:h}})} async function exportWord(){if(!project.nimi||!project.tutkija){view="project";render();toast("Täytä kohteen nimi ja tutkijan nimi ennen vientiä");return}if(typeof docx==="undefined"){toast("Word-kirjastoa ei saatu ladattua. Tarkista verkkoyhteys ja yritä uudelleen.");return}toast("Muodostetaan Word-tiedostoa...");const {Document,Packer,Paragraph,TextRun,HeadingLevel,Table,TableRow,TableCell,WidthType,BorderStyle,AlignmentType}=docx,noBorder={style:BorderStyle.NONE,size:0,color:"FFFFFF"},cellBorders={top:noBorder,bottom:noBorder,left:noBorder,right:noBorder}; function labelCell(text){return new TableCell({width:{size:28,type:WidthType.PERCENTAGE},borders:cellBorders,margins:{top:60,bottom:60,left:0,right:120},children:[new Paragraph({children:[new TextRun({text,color:"666666",size:20})]})]})} function valueCell(text){return new TableCell({width:{size:72,type:WidthType.PERCENTAGE},borders:cellBorders,margins:{top:60,bottom:60,left:0,right:0},children:String(text).split("\n").map(line=>new Paragraph({children:[new TextRun({text:line,size:22})]}))})} function fieldTable(rows){return new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:rows.map(([l,v])=>new TableRow({children:[labelCell(l),valueCell(v)]}))})} const children=[new Paragraph({heading:HeadingLevel.HEADING_1,spacing:{after:200},children:[new TextRun({text:"Kenttämuistiinpano",bold:true,color:"1C1F1A"})]}),fieldTable([["Kohde",project.nimi],["Tilaaja",project.tilaaja||"-"],["Tutkija",project.tutkija],["Päivämäärä",project.pvm]])]; for(let i=0;i<entries.length;i++){const e=entries[i],m=METHODS.find(x=>x.id===e.methodId);children.push(new Paragraph({heading:HeadingLevel.HEADING_2,spacing:{before:300,after:120},children:[new TextRun({text:`Menetelmä ${i+1}: ${m.name}`,bold:true,color:"1C1F1A"})]}));const rows=[];[...COMMON_FIELDS,...m.fields].forEach(f=>{const v=e.values[f.id];if(v)rows.push([f.label,v])});if(e.values.huomiot)rows.push(["Lisähuomiot",e.values.huomiot]);if(rows.length)children.push(fieldTable(rows));if(e.photos?.length){children.push(new Paragraph({spacing:{before:160,after:80},children:[new TextRun({text:`Valokuvat (${e.photos.length})`,color:"666666",size:20})]}));for(const src of e.photos)children.push(new Paragraph({alignment:AlignmentType.CENTER,spacing:{after:160},children:[await buildImageRun(src)]}))}} try{const blob=await Packer.toBlob(new Document({sections:[{properties:{},children}]})),url=URL.createObjectURL(blob),safe=(project.nimi||"kohde").replace(/[^a-z0-9äöå]+/gi,"_"),a=document.createElement('a');a.href=url;a.download=`Kenttamuistiinpano_${safe}_${project.pvm}.docx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);toast("Word-tiedosto (.docx) ladattu")}catch(err){console.error(err);toast("Word-tiedoston muodostus epäonnistui")}} loadState(); </script> </body> </html>
+<!doctype html>
+<html lang="fi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Askelpaikannus – demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#f6f5f1;--fg:#1d1d1b;--card:#fff;--ac:#1a73e8;--mu:#6b6a66;--bd:#ddd9d0;--ok:#188038;--warn:#b06000}
+@media (prefers-color-scheme:dark){:root{--bg:#17171a;--fg:#eee;--card:#222226;--ac:#6ea8ff;--mu:#9a9aa2;--bd:#38383f;--ok:#5bb974;--warn:#f0a35c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;padding:12px;padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
+h1{font-size:18px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:10px}
+#msg,#st{font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+button,label.b,input,select{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg)}
+button,label.b{cursor:pointer}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+button.on{outline:3px solid var(--ac)}
+small,.mu{color:var(--mu)}
+#wrap{display:none;margin-bottom:10px;border:1px solid var(--bd);border-radius:12px;background:#fff;overflow:hidden;text-align:center}
+canvas{touch-action:manipulation;max-width:100%}
+#conf{display:inline-block;padding:2px 8px;border-radius:999px;font-size:13px;margin-left:6px}
+#stats{font-size:13px;color:var(--mu);font-variant-numeric:tabular-nums}
+#notes{margin:6px 0 0;padding-left:18px;font-size:14px}
+#pocket{position:fixed;inset:0;background:#000;color:#333;z-index:99;display:none;align-items:center;justify-content:center;text-align:center;font-size:14px;touch-action:none;user-select:none}
+#pocket.on{display:flex}
+details summary{cursor:pointer;color:var(--mu);font-size:14px}
+</style></head><body>
+<div id="pocket"><div>Taskutila – seuranta jatkuu<br><span id="pst"></span><br><br>Nosta puhelin katseluasentoon palataksesi</div></div>
+
+<h1>👣 Askelpaikannus</h1>
+<div class="card">
+  <div id="msg">1. Lataa pohjakuva (kuva tai PDF) tai kokeile demoa</div>
+  <div class="row">
+    <label class="b p">Valitse tiedosto<input id="file" type="file" accept="image/*,application/pdf" hidden></label>
+    <button id="demo">Demo</button>
+    <button id="load" style="display:none">Avaa tallennettu</button>
+  </div>
+  <div id="setup" style="display:none">
+    <div class="row">
+      <input id="nm" placeholder="Tilan nimi" style="width:140px">
+      <button id="addr">+ Tila</button><button id="done">Valmis</button>
+      <button id="addd">+ Ovi</button><button id="undo">Kumoa</button>
+    </div>
+    <div class="row">
+      <button id="scl">Mittakaava</button>
+      <input id="mlen" type="number" step="0.01" placeholder="m" style="width:80px">
+      <small id="sclinfo">Napauta kaksi pistettä, joiden väli tunnetaan, ja kirjoita etäisyys metreinä</small>
+    </div>
+    <div class="row"><button id="go" class="p">Aloita kenttätyö</button><button id="save">Tallenna pohja</button></div>
+  </div>
+</div>
+
+<div id="wrap"><canvas id="cv"></canvas></div>
+
+<div class="card" id="field" style="display:none">
+  <div><span id="st"></span><span id="conf"></span></div>
+  <div class="row" id="chips"></div>
+  <div class="row">
+    <button id="sens" class="p">Käynnistä anturit</button>
+    <button id="pk">Taskutila</button>
+    <label><input type="checkbox" id="autopk" checked> automaattinen</label>
+  </div>
+  <div id="stats"></div>
+  <details>
+    <summary>Kalibrointi ja asetukset</summary>
+    <div class="row">
+      <button id="cal">Kalibroi askelpituus</button>
+      <input id="caldist" type="number" step="0.1" value="10" style="width:80px"><small>m</small>
+    </div>
+    <small>Kävele suoraan mitattu matka tasaisesti (esim. 10 m), paina sitten Lopeta kalibrointi. Askelpituus tallentuu tähän puhelimeen.</small>
+    <div class="row">
+      <label><input type="checkbox" id="showp" checked> näytä partikkelit</label>
+      <button id="clr">Nollaa sijainti</button>
+    </div>
+  </details>
+  <div class="row"><small>Simulaatio:</small><button id="sl">⟲ 15°</button><button id="sf" class="p">Askel</button><button id="s5">5 askelta</button><button id="sr">⟳ 15°</button></div>
+  <div class="row"><input id="note" placeholder="Havainto" style="flex:1;min-width:120px"><button id="addn">Lisää</button></div>
+  <ol id="notes"></ol>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   Askelpaikannus – demo
+   - Askeleet: pystysuuntainen kiihtyvyys (painovoiman suuntaan projisoitu),
+     huippu–laakso-tunnistus, askelpituus Weinbergin mallilla L = K·(amax−amin)^¼
+   - Suunta: gyroskoopin kiertonopeus pystyakselin ympäri (riippumaton siitä,
+     missä asennossa puhelin on taskussa) + nollapisteen virheen korjaus paikallaan
+   - Sijainti: partikkelisuodin pohjakuvassa. Jokainen partikkeli = (x, y,
+     suuntapoikkeama, askelpituuskerroin). Seinien läpi kulkeminen muualta kuin
+     ovista karsii partikkelit → sijainti ja tuntematon lähtösuunta tarkentuvat.
+   - Tilan vahvistus (napautus) kiinnittää sijainnin uudelleen.
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+const TAU=Math.PI*2,DEG=Math.PI/180;
+let img=null,S=1,dpr=1;
+let rooms=[],doors=[],ppm=0;          // ppm = pikseliä / metri (pohjakuvan koordinaatit)
+let poly=[],mode=null,sclPts=[];       // mode: 'room' | 'door' | 'scale' | 'dir'
+let field=false;
+const say=t=>$('msg').textContent=t;
+const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v)};
+
+/* ---------------- Pohjakuva ---------------- */
+function setImg(i,keep){
+  img=i;if(!keep){rooms=[];doors=[];ppm=0}poly=[];mode=null;field=false;
+  $('wrap').style.display='block';$('setup').style.display='block';$('field').style.display='none';
+  say(keep?'Pohja avattu. Tarkista tilat ja ovet tai aloita kenttätyö':'2. Piirrä tilat (+ Tila), merkitse ovet (+ Ovi) ja aseta mittakaava');
+  updSclInfo();fit();
+}
+async function loadPdf(f){
+  const L=window.pdfjsLib;if(!L)throw new Error('PDF-kirjasto ei latautunut');
+  L.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const d=await L.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+  const pg=await d.getPage(1),v0=pg.getViewport({scale:1}),vp=pg.getViewport({scale:2000/Math.max(v0.width,v0.height)});
+  const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
+  await pg.render({canvasContext:c.getContext('2d'),viewport:vp,background:'#fff'}).promise;
+  setImg(c);
+}
+$('file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    if(f.type==='application/pdf'||/\.pdf$/i.test(f.name))await loadPdf(f);
+    else{const im=new Image();im.src=URL.createObjectURL(f);await im.decode();setImg(im)}
+  }catch(err){say('Tiedoston avaus epäonnistui: '+err.message)}
+};
+$('demo').onclick=()=>{
+  // 38 m × 28 m toimistokerros, 20 px = 1 m
+  const c=document.createElement('canvas');c.width=800;c.height=600;const g=c.getContext('2d');
+  g.fillStyle='#fff';g.fillRect(0,0,800,600);g.strokeStyle='#333';g.lineWidth=6;g.strokeRect(20,20,760,560);
+  g.lineWidth=4;g.beginPath();
+  [[200,20,200,260],[400,20,400,260],[600,20,600,260],[20,260,780,260],[20,320,780,320],[300,320,300,580],[560,320,560,580]].forEach(a=>{g.moveTo(a[0],a[1]);g.lineTo(a[2],a[3])});g.stroke();
+  g.strokeStyle='#fff';g.lineWidth=8;g.beginPath();
+  [[100,260],[300,260],[500,260],[690,260],[160,320],[430,320],[670,320],[20,290]].forEach(p=>{const h=p[0]===20;g.moveTo(p[0]-(h?0:18),p[1]-(h?18:0));g.lineTo(p[0]+(h?0:18),p[1]+(h?18:0))});g.stroke();
+  setImg(c);
+  [['Huone 1',20,20,200,260],['Huone 2',200,20,400,260],['Huone 3',400,20,600,260],['Huone 4',600,20,780,260],['Käytävä',20,260,780,320],['Neuvottelu',20,320,300,580],['Aula',300,320,560,580],['Kahvio',560,320,780,580]]
+   .forEach(a=>rooms.push({n:a[0],v:[{x:a[1],y:a[2]},{x:a[3],y:a[2]},{x:a[3],y:a[4]},{x:a[1],y:a[4]}]}));
+  [[100,260],[300,260],[500,260],[690,260],[160,320],[430,320],[670,320],[20,290]].forEach(p=>doors.push({x:p[0],y:p[1]}));
+  ppm=20;updSclInfo();
+  say('Demo: tilat, ovet ja mittakaava valmiina. Paina Aloita kenttätyö');draw();
+};
+
+/* ---------------- Tallennus tähän puhelimeen ---------------- */
+const KEY='askelpaikannus_pohja_v1',KKEY='askelpaikannus_K_v1';
+function hasSaved(){try{return!!localStorage.getItem(KEY)}catch(e){return false}}
+$('load').style.display=hasSaved()?'':'none';
+$('save').onclick=()=>{
+  try{
+    const c=document.createElement('canvas');c.width=img.width;c.height=img.height;c.getContext('2d').drawImage(img,0,0);
+    localStorage.setItem(KEY,JSON.stringify({img:c.toDataURL('image/jpeg',.85),rooms,doors,ppm}));say('Pohja tallennettu tähän puhelimeen');
+  }catch(e){say('Tallennus ei onnistunut (tila täynnä?)')}
+};
+$('load').onclick=async()=>{
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY));const im=new Image();im.src=d.img;await im.decode();
+    rooms=d.rooms;doors=d.doors||[];ppm=d.ppm||0;setImg(im,true);draw();
+  }catch(e){say('Tallennetun pohjan avaus epäonnistui')}
+};
+
+/* ---------------- Piirtotyökalut ---------------- */
+function setMode(m){mode=m;['addr','addd','scl'].forEach(id=>$(id).classList.remove('on'));
+  if(m==='room')$('addr').classList.add('on');if(m==='door')$('addd').classList.add('on');if(m==='scale')$('scl').classList.add('on')}
+function finishRoom(){
+  if(poly.length<3){say('Napauta vähintään kolme nurkkaa');return}
+  rooms.push({n:$('nm').value.trim()||('Tila '+(rooms.length+1)),v:poly});
+  poly=[];setMode(null);$('nm').value='';say(`Tiloja ${rooms.length}, ovia ${doors.length}. Jatka tai aseta mittakaava`);draw();
+}
+$('addr').onclick=()=>{setMode('room');poly=[];say('Napauta tilan nurkat järjestyksessä ja paina Valmis (tai napauta ensimmäistä nurkkaa)')};
+$('done').onclick=()=>{if(mode==='room')finishRoom();else setMode(null)};
+$('addd').onclick=()=>{setMode(mode==='door'?null:'door');say('Napauta jokaisen oviaukon kohta seinällä. Myös ulko-ovet. Paina + Ovi uudelleen lopettaaksesi')};
+$('scl').onclick=()=>{setMode('scale');sclPts=[];say('Napauta mittakaavan kaksi päätepistettä')};
+$('undo').onclick=()=>{if(mode==='room'&&poly.length)poly.pop();else if(mode==='door')doors.pop();else rooms.pop();draw()};
+$('mlen').oninput=()=>{if(sclPts.length===2){const m=parseFloat($('mlen').value);if(m>0){ppm=Math.hypot(sclPts[1].x-sclPts[0].x,sclPts[1].y-sclPts[0].y)/m;updSclInfo()}}};
+function updSclInfo(){$('sclinfo').textContent=ppm?`Mittakaava asetettu: ${ppm.toFixed(1)} px/m`:'Napauta kaksi pistettä, joiden väli tunnetaan, ja kirjoita etäisyys metreinä'}
+function evPt(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/S,y:(e.clientY-r.top)/S}}
+cv.addEventListener('pointerdown',e=>{
+  const p=evPt(e);
+  if(mode==='room'){if(poly.length>2&&Math.hypot(p.x-poly[0].x,p.y-poly[0].y)<14/S)return finishRoom();poly.push(p);draw()}
+  else if(mode==='door'){doors.push(p);draw()}
+  else if(mode==='scale'){sclPts.push(p);if(sclPts.length===2){setMode(null);say('Kirjoita pisteiden välinen etäisyys metreinä');$('mlen').focus();$('mlen').oninput()}draw()}
+  else if(mode==='dir'){setDirection(p)}
+  else if(field&&roomAt(p.x,p.y)>=0){ // olen tässä
+    const kept=PF.placeAt(p.x,p.y,.6);if(!kept){mode='dir';update();$('st').textContent='Napauta pohjakuvasta suunta, johon lähdet kävelemään'}else update()}
+});
+$('go').onclick=()=>{
+  if(rooms.length<2){say('Piirrä vähintään kaksi tilaa');return}
+  if(!ppm){say('Aseta ensin mittakaava');return}
+  if(!doors.length)say('Huom: ovia ei ole merkitty – seiniä ei voida käyttää tarkentamiseen');
+  field=true;setMode(null);$('field').style.display='block';PF.clear();
+  $('st').textContent='Napauta pohjakuvasta kohta, jossa seisot (tai tilan nimeä)';chips();draw();
+};
+
+/* ---------------- Geometria ---------------- */
+function inPoly(v,x,y){let ins=false;for(let i=0,j=v.length-1;i<v.length;j=i++){const a=v[i],b=v[j];if((a.y>y)!==(b.y>y)&&x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x)ins=!ins}return ins}
+function roomAt(x,y){for(let i=0;i<rooms.length;i++)if(inPoly(rooms[i].v,x,y))return i;return-1}
+let EDGES=[];   // seinäjanat: {ax,ay,bx,by,minx,maxx,miny,maxy}
+function buildEdges(){
+  EDGES=[];const seen=new Set();
+  for(const r of rooms)for(let i=0;i<r.v.length;i++){
+    const a=r.v[i],b=r.v[(i+1)%r.v.length];
+    const k=[a.x,a.y,b.x,b.y].map(n=>Math.round(n)).join(),k2=[b.x,b.y,a.x,a.y].map(n=>Math.round(n)).join();
+    if(seen.has(k)||seen.has(k2))continue;seen.add(k);
+    EDGES.push({ax:a.x,ay:a.y,bx:b.x,by:b.y,minx:Math.min(a.x,b.x),maxx:Math.max(a.x,b.x),miny:Math.min(a.y,b.y),maxy:Math.max(a.y,b.y)});
+  }
+}
+// Leikkaako siirtymä (x0,y0)->(x1,y1) seinän muualla kuin oviaukossa?
+function crossesWall(x0,y0,x1,y1){
+  const dr=0.75*ppm,dr2=dr*dr,snap=0.35*ppm; // oviaukon säde 0,75 m; seinäpiirroksen epätarkkuus 0,35 m
+  const mnx=Math.min(x0,x1),mxx=Math.max(x0,x1),mny=Math.min(y0,y1),mxy=Math.max(y0,y1);
+  for(const e of EDGES){
+    if(e.maxx<mnx-snap||e.minx>mxx+snap||e.maxy<mny-snap||e.miny>mxy+snap)continue;
+    const rx=x1-x0,ry=y1-y0,sx=e.bx-e.ax,sy=e.by-e.ay,den=rx*sy-ry*sx;if(Math.abs(den)<1e-9)continue;
+    const qx=e.ax-x0,qy=e.ay-y0,t=(qx*sy-qy*sx)/den,u=(qx*ry-qy*rx)/den;
+    if(t<0||t>1||u<0||u>1)continue;
+    const cx=x0+t*rx,cy=y0+t*ry;let ok=false;
+    for(const d of doors){const dx=d.x-cx,dy=d.y-cy;if(dx*dx+dy*dy<dr2){ok=true;break}}
+    if(!ok)return true;
+  }
+  return false;
+}
+
+/* ---------------- Partikkelisuodin ---------------- */
+const PF=(()=>{
+  const N=2000;
+  const x=new Float32Array(N),y=new Float32Array(N),th=new Float32Array(N),sc=new Float32Array(N),w=new Float64Array(N),rm=new Int16Array(N);
+  const nx=new Float32Array(N),ny=new Float32Array(N),nth=new Float32Array(N),nsc=new Float32Array(N);
+  let active=false,est=null,probs=[],trail=[],lastRoom=-1,steps=0;
+  function sampleIn(ri){
+    const v=rooms[ri].v;let a=1e9,b=-1e9,c=1e9,d=-1e9;for(const p of v){a=Math.min(a,p.x);b=Math.max(b,p.x);c=Math.min(c,p.y);d=Math.max(d,p.y)}
+    for(let k=0;k<200;k++){const px=a+Math.random()*(b-a),py=c+Math.random()*(d-c);if(inPoly(v,px,py))return[px,py]}
+    const ce=centroid(ri);return[ce.x,ce.y];
+  }
+  function init(ri,thMean,thSd){
+    buildEdges();
+    for(let i=0;i<N;i++){const p=sampleIn(ri);x[i]=p[0];y[i]=p[1];
+      th[i]=thMean==null?Math.random()*TAU:thMean+gauss()*thSd;sc[i]=1+gauss()*.08;w[i]=1/N;rm[i]=ri}
+    active=true;trail=[];estimate();
+  }
+  function clear(){active=false;est=null;probs=[];trail=[];lastRoom=-1}
+  // Yksi askel: pituus (m), kehon suunta psi (rad, pohjakuvan koordinaatistossa ilman partikkelin poikkeamaa)
+  function step(len,psi){
+    if(!active)return;steps++;
+    let sum=0;
+    for(let i=0;i<N;i++){
+      th[i]+=gauss()*.4*DEG;                          // gyron hidas ryömintä
+      const h=psi+th[i]+gauss()*4*DEG;                // askelkohtainen suuntavaihtelu
+      const L=len*sc[i]*(1+gauss()*.06)*ppm;
+      const x1=x[i]+Math.cos(h)*L,y1=y[i]+Math.sin(h)*L;
+      const r=roomAt(x1,y1);
+      let f=1;
+      if(r<0)f=.01;else if(doors.length&&crossesWall(x[i],y[i],x1,y1))f=.01;
+      x[i]=x1;y[i]=y1;rm[i]=r;w[i]*=f;sum+=w[i];
+    }
+    if(sum<1e-200){ // kaikki karsiutuivat: hyväksy liike, mutta levitä suuntaa
+      for(let i=0;i<N;i++){w[i]=1/N;th[i]+=gauss()*20*DEG}
+    }else for(let i=0;i<N;i++)w[i]/=sum;
+    resampleIfNeeded();estimate();
+  }
+  function resampleIfNeeded(force){
+    let s2=0;for(let i=0;i<N;i++)s2+=w[i]*w[i];
+    if(!force&&1/s2>N*.5)return;
+    // systemaattinen uudelleenotanta + pieni karhennus
+    let c=w[0],j=0;const st=1/N,u0=Math.random()*st;
+    for(let i=0;i<N;i++){const u=u0+i*st;while(u>c&&j<N-1){j++;c+=w[j]}
+      nx[i]=x[j]+gauss()*.05*ppm;ny[i]=y[j]+gauss()*.05*ppm;nth[i]=th[j]+gauss()*.7*DEG;nsc[i]=Math.min(1.4,Math.max(.7,sc[j]+gauss()*.008))}
+    x.set(nx);y.set(ny);th.set(nth);sc.set(nsc);
+    for(let i=0;i<N;i++){w[i]=1/N;rm[i]=roomAt(x[i],y[i])}
+  }
+  function estimate(){
+    probs=new Array(rooms.length).fill(0);let mx=0,my=0;
+    for(let i=0;i<N;i++){mx+=w[i]*x[i];my+=w[i]*y[i];if(rm[i]>=0)probs[rm[i]]+=w[i]}
+    let bi=-1,bp=0;probs.forEach((p,i)=>{if(p>bp){bp=p;bi=i}});
+    // sijaintipiste: painotettu keskiarvo, mutta jos se osuu eri tilaan, käytetään todennäköisimmän tilan partikkelien keskiarvoa
+    if(bi>=0&&roomAt(mx,my)!==bi){let sx=0,sy=0,sw=0;for(let i=0;i<N;i++)if(rm[i]===bi){sx+=w[i]*x[i];sy+=w[i]*y[i];sw+=w[i]}if(sw>0){mx=sx/sw;my=sy/sw}}
+    // suunta-arvio (ympyräkeskiarvo)
+    let cs=0,sn=0;for(let i=0;i<N;i++){cs+=w[i]*Math.cos(th[i]);sn+=w[i]*Math.sin(th[i])}
+    est={x:mx,y:my,room:bi,p:bp,th:Math.atan2(sn,cs),thConf:Math.hypot(cs,sn)};
+    trail.push({x:mx,y:my});if(trail.length>600)trail.shift();
+    if(bi!==lastRoom&&bp>.6){lastRoom=bi}
+  }
+  // Tutkija vahvistaa tilan
+  function confirmRoom(ri){
+    if(!active){init(ri,null,0);return}
+    let sum=0;for(let i=0;i<N;i++){if(rm[i]!==ri)w[i]*=1e-4;sum+=w[i]}
+    let inside=0;for(let i=0;i<N;i++)if(rm[i]===ri)inside+=w[i]/sum;
+    if(inside<.02){ // ei uskottavia partikkeleita tilassa → alusta tila, säilytä opittu suunta väljästi
+      const m=est?est.th:null,c=est?est.thConf:0;init(ri,c>.5?m:null,c>.5?35*DEG:0);return}
+    for(let i=0;i<N;i++)w[i]/=sum;resampleIfNeeded(true);estimate();
+  }
+  // Kantotapa vaihtui (kädestä taskuun tai päinvastoin) → suunnan epävarmuus kasvaa
+  // Tutkija napauttaa kohdan, jossa seisoo
+  function placeAt(px,py,sdM){
+    buildEdges();const keep=active&&est&&est.thConf>.5;const m=keep?est.th:0;
+    for(let i=0;i<N;i++){x[i]=px+gauss()*sdM*ppm;y[i]=py+gauss()*sdM*ppm;th[i]=keep?m+gauss()*10*DEG:Math.random()*TAU;
+      sc[i]=active?sc[i]:1+gauss()*.08;w[i]=1/N;rm[i]=roomAt(x[i],y[i])}
+    active=true;trail=[];estimate();return keep;
+  }
+  function spreadHeading(sd){for(let i=0;i<N;i++)th[i]+=gauss()*sd}
+  function setHeading(t,sd){for(let i=0;i<N;i++)th[i]=t+gauss()*sd;estimate()}
+  return{init,clear,step,confirmRoom,placeAt,spreadHeading,setHeading,get active(){return active},get est(){return est},get probs(){return probs},get trail(){return trail},
+    get steps(){return steps},x,y,N};
+})();
+function centroid(ri){const v=rooms[ri].v;return{x:v.reduce((a,p)=>a+p.x,0)/v.length,y:v.reduce((a,p)=>a+p.y,0)/v.length}}
+
+/* ---------------- Liikeanturit: askeleet ja suunta ---------------- */
+const SN={
+  on:false,psi:0,           // kehon suunta (rad), integroitu gyrosta
+  g:[0,0,9.81],gl:9.81,     // painovoiman suunta laitteen koordinaatistossa (alipäästö)
+  af:0,                     // suodatettu pystykiihtyvyys
+  phase:0,mx:-1e9,mn:1e9,lastStep:0,peakT:0,
+  K:0.47,ampAvg:3,
+  bias:0,still:0,lastT:0,
+  cal:null,                 // {sum, n}
+  iosSign:/iPhone|iPad|iPod/.test(navigator.userAgent)?-1:1,
+  up:[0,0,1],
+};
+try{const k=parseFloat(localStorage.getItem(KKEY));if(k>.2&&k<1)SN.K=k}catch(e){}
+function onMotion(e){
+  const a=e.accelerationIncludingGravity,r=e.rotationRate;if(!a||a.x==null)return;
+  const t=performance.now()/1000;let dt=SN.lastT?t-SN.lastT:0.016;SN.lastT=t;if(dt>.2||dt<=0)dt=.016;
+  const ax=a.x*SN.iosSign,ay=a.y*SN.iosSign,az=a.z*SN.iosSign;
+  // painovoima (alipäästö, aikavakio ~0,7 s)
+  const al=1-Math.exp(-dt/.7);SN.g[0]+=al*(ax-SN.g[0]);SN.g[1]+=al*(ay-SN.g[1]);SN.g[2]+=al*(az-SN.g[2]);
+  const gl=Math.hypot(SN.g[0],SN.g[1],SN.g[2])||9.81;SN.gl=gl;
+  const ux=SN.g[0]/gl,uy=SN.g[1]/gl,uz=SN.g[2]/gl;SN.up=[ux,uy,uz];
+  // pystykiihtyvyys ilman painovoimaa, alipäästö ~4 Hz
+  const av=ax*ux+ay*uy+az*uz-gl;const a2=1-Math.exp(-dt/.04);SN.af+=a2*(av-SN.af);
+  // kiertonopeus pystyakselin ympäri (rad/s); positiivinen = vasemmalle ylhäältä katsoen
+  let yaw=0;
+  if(r&&r.alpha!=null){const wx=(r.beta||0)*DEG,wy=(r.gamma||0)*DEG,wz=(r.alpha||0)*DEG;yaw=wx*ux+wy*uy+wz*uz}
+  // paikallaanolo → nollapisteen virheen arvio
+  if(t-SN.lastStep>1.2&&Math.abs(SN.af)<.12&&Math.abs(yaw-SN.bias)<4*DEG){SN.still+=dt;if(SN.still>.5)SN.bias+=(yaw-SN.bias)*Math.min(1,dt*.5)}else SN.still=0;
+  const yr=yaw-SN.bias;
+  if(Math.abs(yr)>.004)SN.psi-=yr*dt;          // pohjakuvassa y kasvaa alaspäin → vasen käännös pienentää kulmaa
+  detectStep(t);
+  pocketLogic(t,dt);
+}
+function detectStep(t){
+  const v=SN.af,thrP=Math.max(.45,SN.ampAvg*.22),thrV=-Math.max(.35,SN.ampAvg*.18),hyst=Math.max(.25,SN.ampAvg*.12);
+  if(SN.phase===0){ // etsitään huippua
+    if(v>SN.mx){SN.mx=v;SN.peakT=t}
+    if(SN.mx>thrP&&v<SN.mx-hyst){SN.phase=1;SN.mn=v}
+    if(SN.mx<thrP&&v<0)SN.mx=-1e9;
+  }else{ // etsitään laaksoa
+    if(v<SN.mn)SN.mn=v;
+    if(SN.mn<thrV&&v>SN.mn+hyst){
+      const amp=SN.mx-SN.mn,dtStep=SN.peakT-SN.lastStep;
+      if(dtStep>.27&&amp<25){ // max ~3,7 askelta/s; hylkää iskut
+        if(dtStep<2)SN.ampAvg+=(amp-SN.ampAvg)*.15;
+        SN.lastStep=SN.peakT;onStep(amp);
+      }
+      SN.phase=0;SN.mx=-1e9;
+    }
+    if(t-SN.peakT>1.2){SN.phase=0;SN.mx=-1e9}
+  }
+}
+let totalDist=0,stepCount=0;
+function onStep(amp){
+  const f=Math.pow(amp,.25);
+  if(SN.cal){SN.cal.sum+=f;SN.cal.n++}
+  const L=SN.K*f;stepCount++;totalDist+=L;
+  PF.step(L,SN.psi);
+  if(PF.active)update();else stats();
+}
+$('sens').onclick=async()=>{
+  if(SN.on){window.removeEventListener('devicemotion',onMotion);SN.on=false;$('sens').textContent='Käynnistä anturit';$('sens').className='p';releaseWake();return}
+  try{
+    if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
+      const p=await DeviceMotionEvent.requestPermission();if(p!=='granted')throw new Error('Lupa evättiin');}
+    let got=false;const probe=()=>{got=true};window.addEventListener('devicemotion',probe,{once:true});
+    window.addEventListener('devicemotion',onMotion);SN.on=true;SN.lastT=0;
+    $('sens').textContent='Pysäytä anturit';$('sens').className='';
+    requestWake();
+    setTimeout(()=>{if(!got){$('st').textContent='Liikeanturit eivät lähetä dataa. Avaa sivu puhelimen Chromessa https-osoitteesta.';}},1500);
+  }catch(e){$('st').textContent='Anturit eivät käynnisty: '+(e.message||e)}
+};
+
+/* ---------------- Taskutila ---------------- */
+let wake=null,pocket=false,pkT=0,pkOutT=0,pkManual=false;
+async function requestWake(){try{if('wakeLock'in navigator){wake=await navigator.wakeLock.request('screen')}}catch(e){}}
+function releaseWake(){try{wake&&wake.release();wake=null}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&SN.on)requestWake()});
+function setPocket(on){
+  if(on===pocket)return;pocket=on;$('pocket').classList.toggle('on',on);
+  if(PF.active)PF.spreadHeading(on?25*DEG:15*DEG);   // kantotapa vaihtui → suunta epävarmemmaksi, seinät korjaavat
+}
+function pocketLogic(t,dt){
+  if(pkManual||!$('autopk').checked)return;
+  const uz=SN.up[2];             // >0: näyttö ylöspäin
+  const walking=t-SN.lastStep<1.5;
+  if(!pocket){
+    if(uz<.35&&walking)pkT+=dt;else pkT=Math.max(0,pkT-dt*2);
+    if(pkT>1.5){setPocket(true);pkT=0}
+  }else{
+    if(uz>.55&&!walking)pkOutT+=dt;else if(uz>.65)pkOutT+=dt*.6;else pkOutT=0;
+    if(pkOutT>.7){setPocket(false);pkOutT=0}
+  }
+  if(pocket)$('pst').textContent=`${stepCount} askelta · ${PF.est&&PF.est.room>=0?rooms[PF.est.room].n:''}`;
+}
+$('pk').onclick=()=>{pkManual=true;setPocket(true);
+  // käsin käynnistetty taskutila: poistu pitämällä puhelin katseluasennossa
+  const chk=setInterval(()=>{if(!pocket){clearInterval(chk);pkManual=false;return}
+    if(SN.up[2]>.6&&performance.now()/1000-SN.lastStep>1.5){pkOutT+=.2;if(pkOutT>.8){pkOutT=0;pkManual=false;setPocket(false);clearInterval(chk)}}else pkOutT=0},200)};
+// estä kaikki kosketukset taskutilassa
+['pointerdown','pointerup','click','touchstart','touchend','contextmenu'].forEach(ev=>$('pocket').addEventListener(ev,e=>{e.preventDefault();e.stopPropagation()},{passive:false}));
+
+/* ---------------- Kenttätila ---------------- */
+function chips(){
+  const c=$('chips');c.innerHTML='';
+  const est=PF.est,pr=PF.probs;
+  const order=rooms.map((r,i)=>i);if(PF.active)order.sort((a,b)=>(pr[b]||0)-(pr[a]||0));
+  order.forEach(i=>{const b=document.createElement('button');
+    const isBest=est&&est.room===i;b.textContent=(isBest?'✔ ':'')+rooms[i].n+(PF.active&&pr[i]>.05&&!isBest?` ${Math.round(pr[i]*100)} %`:'');
+    if(isBest)b.className='p';b.onclick=()=>{PF.confirmRoom(i);
+      if(PF.steps===0||!PF.est||PF.est.thConf<.5){mode='dir';$('st').textContent='Valinnainen: napauta pohjakuvasta suunta, johon lähdet kävelemään'}
+      update()};c.append(b)});
+}
+function setDirection(p){
+  mode=null;const e=PF.est;if(!e)return;
+  const ang=Math.atan2(p.y-e.y,p.x-e.x);PF.setHeading(ang-SN.psi,20*DEG);update();
+}
+let chipKey='';
+function update(){
+  if(!field)return draw();
+  const e=PF.est;
+  if(e){
+    const pct=Math.round(e.p*100),c=$('conf');
+    $('st').textContent=e.room>=0?'Olet: '+rooms[e.room].n:'Sijainti epävarma';
+    c.textContent=pct+' %';c.style.background=pct>=80?'var(--ok)':pct>=50?'var(--warn)':'#b3261e';c.style.color='#fff';
+    if(mode!=='dir'&&pct<50)$('st').textContent+=' – vahvista tila napauttamalla';
+  }
+  const key=(e?e.room:-1)+':'+(PF.probs.map(p=>Math.round(p*10)).join());
+  if(key!==chipKey){chipKey=key;chips()}
+  stats();draw();
+}
+function stats(){
+  const e=PF.est;
+  $('stats').textContent=`askeleet ${stepCount} · matka ${totalDist.toFixed(1)} m · askel K ${SN.K.toFixed(3)}`+
+    (SN.cal?` · kalibrointi: ${SN.cal.n} askelta`:'')+` · gyron nollapiste ${(SN.bias/DEG).toFixed(2)} °/s`+
+    (e?` · suunnan varmuus ${Math.round(e.thConf*100)} %`:'');
+}
+$('cal').onclick=()=>{
+  if(!SN.cal){SN.cal={sum:0,n:0};$('cal').textContent='Lopeta kalibrointi';$('cal').classList.add('on');return}
+  const d=parseFloat($('caldist').value),c=SN.cal;SN.cal=null;$('cal').textContent='Kalibroi askelpituus';$('cal').classList.remove('on');
+  if(c.n<6||!(d>0)){$('st').textContent='Kalibrointi hylättiin: liian vähän askelia';return}
+  SN.K=d/c.sum;try{localStorage.setItem(KKEY,String(SN.K))}catch(e){}
+  $('st').textContent=`Askelpituus kalibroitu: keskimäärin ${(d/c.n).toFixed(2)} m / askel (${c.n} askelta)`;stats();
+};
+$('clr').onclick=()=>{PF.clear();totalDist=0;stepCount=0;chipKey='';$('st').textContent='Napauta pohjakuvasta kohta, jossa seisot (tai tilan nimeä)';$('conf').textContent='';chips();stats();draw()};
+$('showp').onchange=draw;
+// Simulaatio pöytäkoneella: askel 0,7 m nykyiseen suuntaan
+function simStep(){onStep(Math.pow(.7/SN.K,4)*(1+gauss()*.05))}
+$('sf').onclick=simStep;$('s5').onclick=()=>{for(let i=0;i<5;i++)simStep()};
+$('sl').onclick=()=>{SN.psi-=15*DEG;update()};$('sr').onclick=()=>{SN.psi+=15*DEG;update()};
+addEventListener('keydown',e=>{if(!field)return;if(e.key==='ArrowUp')simStep();if(e.key==='ArrowLeft')$('sl').click();if(e.key==='ArrowRight')$('sr').click()});
+$('addn').onclick=()=>{
+  const t=$('note').value.trim();if(!t)return;const e=PF.est;
+  const li=document.createElement('li');li.textContent=(e&&e.room>=0?rooms[e.room].n+(e.p<.8?' (?)':''):'tuntematon tila')+': '+t;$('notes').append(li);$('note').value='';
+};
+
+/* ---------------- Piirto ---------------- */
+function fit(){
+  if(!img)return;dpr=devicePixelRatio||1;
+  const w=$('wrap').clientWidth||innerWidth-24,mh=innerHeight*.62;
+  S=Math.min(w/img.width,mh/img.height);
+  cv.style.width=img.width*S+'px';cv.style.height=img.height*S+'px';
+  cv.width=Math.round(img.width*S*dpr);cv.height=Math.round(img.height*S*dpr);draw();
+}
+addEventListener('resize',fit);
+function path2(v){ctx.beginPath();v.forEach((p,j)=>j?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y))}
+let rafPending=false;
+function draw(){if(rafPending)return;rafPending=true;requestAnimationFrame(()=>{rafPending=false;drawNow()})}
+function drawNow(){
+  if(!img)return;
+  ctx.setTransform(dpr*S,0,0,dpr*S,0,0);ctx.drawImage(img,0,0);const k=1/S;const e=PF.est;
+  rooms.forEach((r,i)=>{
+    path2(r.v);ctx.closePath();const best=e&&e.room===i;
+    ctx.fillStyle=`hsla(${i*47%360},70%,50%,${best?.40:.16})`;ctx.fill();
+    ctx.strokeStyle=`hsl(${i*47%360},70%,38%)`;ctx.lineWidth=(best?3:1.5)*k;ctx.stroke();
+    const c=centroid(i);ctx.font=`${13*k}px sans-serif`;ctx.textAlign='center';
+    ctx.lineWidth=3*k;ctx.strokeStyle='#fff';ctx.strokeText(r.n,c.x,c.y);ctx.fillStyle='#000';ctx.fillText(r.n,c.x,c.y);
+  });
+  doors.forEach(d=>{ctx.fillStyle='#e8710a';ctx.beginPath();ctx.arc(d.x,d.y,5*k,0,TAU);ctx.fill()});
+  if(poly.length){path2(poly);ctx.strokeStyle='#e8710a';ctx.lineWidth=2*k;ctx.stroke();poly.forEach(p=>{ctx.fillStyle='#e8710a';ctx.beginPath();ctx.arc(p.x,p.y,5*k,0,TAU);ctx.fill()})}
+  if(sclPts.length&&!field){ctx.strokeStyle='#1a73e8';ctx.lineWidth=2*k;path2(sclPts);ctx.stroke();sclPts.forEach(p=>{ctx.fillStyle='#1a73e8';ctx.beginPath();ctx.arc(p.x,p.y,4*k,0,TAU);ctx.fill()})}
+  if(field&&PF.active){
+    if($('showp').checked){ctx.fillStyle='rgba(120,60,200,.35)';const sz=2*k;for(let i=0;i<PF.N;i+=2)ctx.fillRect(PF.x[i]-sz/2,PF.y[i]-sz/2,sz,sz)}
+    const tr=PF.trail;if(tr.length>1){path2(tr);ctx.strokeStyle='rgba(26,115,232,.6)';ctx.lineWidth=2*k;ctx.stroke()}
+    if(e){
+      const h=SN.psi+e.th;
+      ctx.save();ctx.translate(e.x,e.y);ctx.rotate(h+Math.PI/2);
+      ctx.fillStyle=`rgba(26,115,232,${.15+.35*e.thConf})`;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-14*k,-30*k);ctx.lineTo(14*k,-30*k);ctx.fill();ctx.restore();
+      ctx.fillStyle='#1a73e8';ctx.strokeStyle='#fff';ctx.lineWidth=3*k;ctx.beginPath();ctx.arc(e.x,e.y,8*k,0,TAU);ctx.fill();ctx.stroke();
+    }
+  }
+}
+</script></body></html>
